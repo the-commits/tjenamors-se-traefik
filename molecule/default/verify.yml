@@ -1,0 +1,38 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Check Docker is installed
+      ansible.builtin.command: docker --version
+      changed_when: false
+
+    - name: Check Traefik base directory exists
+      ansible.builtin.stat:
+        path: /opt/traefik
+      register: dir_check
+      failed_when: not dir_check.stat.exists
+
+    - name: Check traefik.yml config exists
+      ansible.builtin.stat:
+        path: /opt/traefik/traefik.yml
+      register: cfg_check
+      failed_when: not cfg_check.stat.exists
+
+    - name: Check docker-compose.yml exists
+      ansible.builtin.stat:
+        path: /opt/traefik/docker-compose.yml
+      register: dc_check
+      failed_when: not dc_check.stat.exists
+
+    - name: Check systemd service unit
+      ansible.builtin.stat:
+        path: /etc/systemd/system/traefik.service
+      register: svc_check
+      failed_when: ansible_service_mgr == 'systemd' and not svc_check.stat.exists
+
+    - name: Verify service is enabled
+      ansible.builtin.command: systemctl is-enabled traefik
+      changed_when: false
+      when: ansible_service_mgr == 'systemd'

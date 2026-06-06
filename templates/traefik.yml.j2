@@ -1,0 +1,66 @@
+api:
+  dashboard: {{ 'true' if traefik_dashboard_enabled else 'false' }}
+
+entryPoints:
+  web:
+    address: ":{{ traefik_http_port }}"
+{% if traefik_web_enabled %}
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+{% endif %}
+{% if traefik_websecure_enabled %}
+  websecure:
+    address: ":{{ traefik_https_port }}"
+{% endif %}
+{% if traefik_dashboard_enabled %}
+  traefik:
+    address: ":{{ traefik_dashboard_port }}"
+{% endif %}
+{% if traefik_access_log %}
+accessLog:
+  filePath: /var/log/traefik/access.log
+{% endif %}
+
+log:
+  level: "{{ traefik_log_level }}"
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: {{ 'true' if traefik_docker_exposed_by_default else 'false' }}
+    network: "{{ traefik_docker_network }}"
+{% if traefik_domains | length > 0 %}
+  file:
+    directory: /etc/traefik/config
+    watch: true
+{% endif %}
+
+{% if traefik_acme_email %}
+certificatesResolvers:
+{% for resolver in traefik_certificates_resolvers %}
+  {{ resolver.name }}:
+    acme:
+{% if traefik_acme_staging %}
+      caServer: https://acme-staging-v02.api.letsencrypt.org/directory
+{% endif %}
+{% if traefik_acme_caserver %}
+      caServer: "{{ traefik_acme_caserver }}"
+{% endif %}
+      email: "{{ traefik_acme_email }}"
+      storage: /etc/traefik/certs/acme.json
+{% if traefik_acme_challenge == 'http' %}
+      httpChallenge:
+        entryPoint: web
+{% elif traefik_acme_challenge == 'tls' %}
+      tlsChallenge: {}
+{% elif traefik_acme_challenge == 'dns' %}
+      dnsChallenge:
+        provider: "{{ traefik_acme_dns_provider | default('') }}"
+        delayBeforeCheck: 0
+{% endif %}
+{% endfor %}
+{% endif %}

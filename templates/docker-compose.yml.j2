@@ -1,0 +1,58 @@
+#
+# Traefik Docker Compose Configuration
+#
+
+name: traefik
+
+services:
+  traefik:
+    container_name: traefik
+    image: "{{ traefik_image }}"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - "{{ traefik_docker_network }}"
+    ports:
+      - "{{ traefik_http_port }}:{{ traefik_http_port }}"
+{% if traefik_websecure_enabled %}
+      - "{{ traefik_https_port }}:{{ traefik_https_port }}"
+{% endif %}
+{% if traefik_dashboard_enabled and not traefik_websecure_enabled %}
+      - "{{ traefik_dashboard_port }}:{{ traefik_dashboard_port }}"
+{% endif %}
+    environment:
+      - TZ={{ ansible_date_time.tz | default('UTC') }}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - "{{ traefik_base_dir }}/traefik.yml:/etc/traefik/traefik.yml:ro"
+      - "{{ traefik_base_dir }}/config:/etc/traefik/config"
+      - "{{ traefik_base_dir }}/certs:/etc/traefik/certs"
+{% if traefik_access_log %}
+      - "{{ traefik_base_dir }}/logs:/var/log/traefik"
+{% endif %}
+    labels:
+{% if traefik_dashboard_enabled %}
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.{{ traefik_domains[0] | default('localhost') }}`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+{% if traefik_websecure_enabled %}
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls=true"
+{% if traefik_acme_email %}
+      - "traefik.http.routers.dashboard.tls.certResolver=letsencrypt"
+{% endif %}
+{% else %}
+      - "traefik.http.routers.dashboard.entrypoints=web"
+{% endif %}
+      - "traefik.http.routers.dashboard.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users={{ traefik_dashboard_users | default('admin:$2y$10$change.this.password.hash.example') }}"
+{% endif %}
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "3"
+
+networks:
+  {{ traefik_docker_network }}:
+    external: true

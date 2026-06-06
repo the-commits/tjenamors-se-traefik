@@ -1,0 +1,18 @@
+[Unit]
+Description=Traefik Reverse Proxy
+Wants=network-online.target
+After=network-online.target docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory={{ traefik_base_dir }}
+ExecStart={{ traefik_compose_cmd }} up -d --remove-orphans
+ExecStop={{ traefik_compose_cmd }} down --timeout {{ traefik_shutdown_timeout }}
+ExecReload={{ traefik_compose_cmd }} restart
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

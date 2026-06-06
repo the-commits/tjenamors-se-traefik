@@ -1,0 +1,17 @@
+namespace: tjenamors
+name: traefik
+version: 0.1.0
+readme: README.md
+authors:
+  - the-commits
+description: Ansible role for deploying Traefik reverse proxy via Docker
+license:
+  - AGPL-3.0
+tags:
+  - traefik
+  - reverse-proxy
+  - docker
+  - letsencrypt
+dependencies: {}
+repository: https://git.sr.ht/~the-commits/tjenamors-se-traefik
+issues: https://git.sr.ht/~the-commits/tjenamors-se-traefik

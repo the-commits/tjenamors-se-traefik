@@ -1,0 +1,161 @@
+---
+- name: Include OS-specific variables
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_os_family | lower }}.yml"
+    - "default.yml"
+
+- name: Install prerequisites
+  ansible.builtin.package:
+    name: "{{ traefik_prerequisites }}"
+    state: present
+    update_cache: true
+
+- name: Install Docker
+  block:
+    - name: Check if Docker is already installed
+      ansible.builtin.command: command -v docker
+      changed_when: false
+      failed_when: false
+      register: docker_check
+
+    - name: Run official Docker installer
+      when: docker_check.rc != 0
+      block:
+        - name: Download get.docker.com script
+          ansible.builtin.get_url:
+            url: https://get.docker.com
+            dest: /tmp/get-docker.sh
+            mode: "0700"
+
+        - name: Execute Docker installer
+          ansible.builtin.command: sh /tmp/get-docker.sh
+          args:
+            creates: /usr/bin/docker
+
+        - name: Remove installer script
+          ansible.builtin.file:
+            path: /tmp/get-docker.sh
+            state: absent
+
+        - name: Add ansible user to docker group
+          ansible.builtin.user:
+            name: "{{ ansible_user }}"
+            groups: docker
+            append: true
+          when: ansible_user != 'root'
+
+- name: Build docker compose command
+  ansible.builtin.set_fact:
+    traefik_compose_cmd: >-
+      /usr/bin/docker compose -f {{ traefik_base_dir }}/docker-compose.yml
+      --project-directory {{ traefik_base_dir }}
+
+- name: Create Traefik directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - "{{ traefik_base_dir }}"
+    - "{{ traefik_base_dir }}/config"
+    - "{{ traefik_base_dir }}/certs"
+    - "{{ traefik_base_dir }}/logs"
+
+- name: Deploy Traefik static config
+  ansible.builtin.template:
+    src: traefik.yml.j2
+    dest: "{{ traefik_base_dir }}/traefik.yml"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Deploy docker-compose.yml
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ traefik_base_dir }}/docker-compose.yml"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Create Docker network
+  ansible.builtin.command: >-
+    docker network create {{ traefik_docker_network }} --driver bridge
+  changed_when: false
+  failed_when: false
+  when: traefik_docker_provider
+
+- name: Check if Traefik containers are already running
+  ansible.builtin.command: >-
+    {{ traefik_compose_cmd }} ps --services --filter status=running
+  args:
+    chdir: "{{ traefik_base_dir }}"
+  changed_when: false
+  failed_when: false
+  register: traefik_ps
+
+- name: Pull Docker images
+  ansible.builtin.command: >-
+    {{ traefik_compose_cmd }} pull
+  args:
+    chdir: "{{ traefik_base_dir }}"
+  when: traefik_ps.rc != 0
+
+- name: Deploy systemd unit
+  when:
+    - ansible_service_mgr == 'systemd'
+    - traefik_ps.rc != 0
+  block:
+    - name: Deploy traefik.service unit
+      ansible.builtin.template:
+        src: traefik.service.j2
+        dest: /etc/systemd/system/traefik.service
+        owner: root
+        group: root
+        mode: "0644"
+      register: systemd_unit
+
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reload: true
+      when: systemd_unit.changed
+
+- name: Enable and start systemd service (one-time)
+  when:
+    - ansible_service_mgr == 'systemd'
+    - traefik_ps.rc != 0
+  block:
+    - name: Check if service is already enabled
+      ansible.builtin.command: systemctl is-enabled traefik
+      changed_when: false
+      failed_when: false
+      register: svc_enabled
+
+    - name: Enable service on first run
+      ansible.builtin.command: systemctl enable traefik
+      when: svc_enabled.rc != 0
+
+    - name: Check if service is already active
+      ansible.builtin.command: systemctl is-active traefik
+      changed_when: false
+      failed_when: false
+      register: svc_active
+
+    - name: Start service on first run
+      ansible.builtin.command: systemctl start traefik
+      when: svc_active.rc != 0
+
+- name: Start directly via docker compose (non-systemd)
+  when:
+    - ansible_service_mgr != 'systemd'
+    - traefik_ps.rc != 0
+  block:
+    - name: Start Traefik containers
+      ansible.builtin.command: >-
+        {{ traefik_compose_cmd }} up -d
+      args:
+        chdir: "{{ traefik_base_dir }}"
+      register: compose_up
+      changed_when: compose_up.stdout is not search('is up-to-date')

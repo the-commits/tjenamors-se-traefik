@@ -1,0 +1,39 @@
+---
+traefik_base_dir: /opt/traefik
+
+# Release
+traefik_version: v3.3
+traefik_image: "traefik:{{ traefik_version }}"
+
+# Entrypoints
+traefik_http_port: 80
+traefik_https_port: 443
+traefik_dashboard_port: 8080
+traefik_web_enabled: true
+traefik_websecure_enabled: true
+traefik_dashboard_enabled: false
+
+# ACME / Let's Encrypt
+traefik_acme_email: ""
+traefik_acme_staging: false
+traefik_acme_challenge: http
+traefik_acme_caserver: ""
+traefik_certificates_resolvers:
+  - name: letsencrypt
+
+# Domains
+traefik_domains: []
+
+# Docker provider
+traefik_docker_provider: true
+traefik_docker_exposed_by_default: false
+traefik_docker_network: traefik
+
+# Logging
+traefik_log_level: INFO
+traefik_access_log: false
+
+# Systemd
+traefik_shutdown_timeout: 30
+traefik_service_enabled: true
+traefik_service_state: started

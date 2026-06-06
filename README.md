@@ -57,7 +57,9 @@ All variables are prefixed with `traefik_`. See [`defaults/main.yml`](defaults/m
 
 ## Dependencies
 
-None. Docker is installed automatically by the role.
+Requires Docker Engine and Docker Compose. See
+[`tjenamors-se-docker`](https://git.sr.ht/~the-commits/tjenamors-se-docker) and
+[`tjenamors-se-docker-compose`](https://git.sr.ht/~the-commits/tjenamors-se-docker-compose).
 
 ## Example Playbook
 

@@ -2,8 +2,7 @@
 traefik_base_dir: /opt/traefik
 
 # Release
-traefik_version: v3.3
-traefik_image: "traefik:{{ traefik_version }}"
+traefik_image: "traefik:latest"
 
 # Entrypoints
 traefik_http_port: 80
@@ -28,7 +27,7 @@ traefik_domains: []
 traefik_docker_provider: true
 traefik_docker_exposed_by_default: false
 traefik_docker_network: traefik
-traefik_docker_api_version: "1.44"
+
 
 # Logging
 traefik_log_level: INFO

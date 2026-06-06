@@ -23,6 +23,7 @@ services:
 {% endif %}
     environment:
       - TZ={{ ansible_date_time.tz | default('UTC') }}
+      - DOCKER_API_VERSION={{ traefik_docker_api_version | default('1.44') }}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - "{{ traefik_base_dir }}/traefik.yml:/etc/traefik/traefik.yml:ro"

@@ -30,9 +30,9 @@
       ansible.builtin.stat:
         path: /etc/systemd/system/traefik.service
       register: svc_check
-      failed_when: ansible_service_mgr == 'systemd' and not svc_check.stat.exists
+      failed_when: ansible_facts['service_mgr'] == 'systemd' and not svc_check.stat.exists
 
     - name: Verify service is enabled
       ansible.builtin.command: systemctl is-enabled traefik
       changed_when: false
-      when: ansible_service_mgr == 'systemd'
+      when: ansible_facts['service_mgr'] == 'systemd'

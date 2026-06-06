@@ -7,7 +7,7 @@
   ansible.builtin.systemd:
     name: traefik
     state: restarted
-  when: ansible_service_mgr == 'systemd'
+  when: ansible_facts['service_mgr'] == 'systemd'
 
 - name: restart traefik compose
   ansible.builtin.command: >-
@@ -15,4 +15,4 @@
     --project-directory {{ traefik_base_dir }} restart
   args:
     chdir: "{{ traefik_base_dir }}"
-  when: ansible_service_mgr != 'systemd'
+  when: ansible_facts['service_mgr'] != 'systemd'

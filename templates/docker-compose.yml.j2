@@ -31,8 +31,8 @@ services:
 {% if traefik_access_log %}
       - "{{ traefik_base_dir }}/logs:/var/log/traefik"
 {% endif %}
-    labels:
 {% if traefik_dashboard_enabled %}
+    labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.rule=Host(`traefik.{{ traefik_domains[0] | default('localhost') }}`)"
       - "traefik.http.routers.dashboard.service=api@internal"

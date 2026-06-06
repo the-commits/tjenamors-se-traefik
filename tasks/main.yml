@@ -56,17 +56,21 @@
   failed_when: false
   register: traefik_ps
 
+- name: Determine if Traefik needs first-run setup
+  ansible.builtin.set_fact:
+    traefik_needs_setup: "{{ traefik_ps.stdout_lines | length == 0 }}"
+
 - name: Pull Docker images
   ansible.builtin.command: >-
     {{ traefik_compose_cmd }} pull
   args:
     chdir: "{{ traefik_base_dir }}"
-  when: traefik_ps.rc != 0
+  when: traefik_needs_setup
 
 - name: Deploy systemd unit
   when:
     - ansible_facts['service_mgr'] == 'systemd'
-    - traefik_ps.rc != 0
+    - traefik_needs_setup
   block:
     - name: Deploy traefik.service unit
       ansible.builtin.template:
@@ -85,7 +89,7 @@
 - name: Enable and start systemd service (one-time)
   when:
     - ansible_facts['service_mgr'] == 'systemd'
-    - traefik_ps.rc != 0
+    - traefik_needs_setup
   block:
     - name: Check if service is already enabled
       ansible.builtin.command: systemctl is-enabled traefik
@@ -110,7 +114,7 @@
 - name: Start directly via docker compose (non-systemd)
   when:
     - ansible_facts['service_mgr'] != 'systemd'
-    - traefik_ps.rc != 0
+    - traefik_needs_setup
   block:
     - name: Start Traefik containers
       ansible.builtin.command: >-

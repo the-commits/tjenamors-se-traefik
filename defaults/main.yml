@@ -29,6 +29,12 @@ traefik_docker_exposed_by_default: false
 traefik_docker_network: traefik
 
 
+# Resource limits (Docker Compose deploy.resources)
+traefik_memory_max: "512m"
+traefik_memory_reservation: "256m"
+traefik_cpus_max: "1"
+traefik_cpus_reservation: "0.5"
+
 # Logging
 traefik_log_level: INFO
 traefik_access_log: false

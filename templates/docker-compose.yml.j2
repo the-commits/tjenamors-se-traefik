@@ -9,6 +9,14 @@ services:
     container_name: traefik
     image: "{{ traefik_image }}"
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: "{{ traefik_memory_max }}"
+          cpus: "{{ traefik_cpus_max }}"
+        reservations:
+          memory: "{{ traefik_memory_reservation }}"
+          cpus: "{{ traefik_cpus_reservation }}"
     security_opt:
       - no-new-privileges:true
     networks:

@@ -4,9 +4,18 @@ Ansible role for deploying [Traefik](https://traefik.io) reverse proxy via Docke
 
 ## Requirements
 
+### Server Requirements
+
+#### Minimum
+- 64-bit x86 (x86_64/amd64) or ARM64 CPU
+- at least 512 MB of RAM
+- 1 vCPU
+- 10 GB of hard drive space
+- Docker Engine and Docker Compose installed
+
+### Ansible Requirements
 - Ansible 2.14+
 - Root/sudo access on target hosts
-- Linux (x86_64 or aarch64)
 
 ## Installation
 
@@ -42,7 +51,7 @@ All variables are prefixed with `traefik_`. See [`defaults/main.yml`](defaults/m
 | Variable | Default | Description |
 |---|---|---|
 | `traefik_base_dir` | `/opt/traefik` | Installation directory |
-| `traefik_version` | `v3.3` | Traefik version tag |
+| `traefik_image` | `traefik:latest` | Traefik Docker image |
 | `traefik_http_port` | `80` | HTTP entrypoint port |
 | `traefik_https_port` | `443` | HTTPS entrypoint port |
 | `traefik_web_enabled` | `true` | Enable HTTP entrypoint (redirects to HTTPS) |
@@ -53,6 +62,10 @@ All variables are prefixed with `traefik_`. See [`defaults/main.yml`](defaults/m
 | `traefik_acme_challenge` | `http` | Challenge type (`http`, `tls`, `dns`) |
 | `traefik_domains` | `[]` | List of domains for file-based routing |
 | `traefik_docker_network` | `traefik` | Docker network name |
+| `traefik_memory_max` | `512m` | Hard memory limit |
+| `traefik_memory_reservation` | `256m` | Soft memory reservation |
+| `traefik_cpus_max` | `1` | Hard CPU limit |
+| `traefik_cpus_reservation` | `0.5` | Soft CPU reservation |
 | `traefik_log_level` | `INFO` | Log level |
 
 ## Dependencies

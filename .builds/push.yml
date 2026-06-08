@@ -1,0 +1,23 @@
+---
+image: alpine/edge
+packages:
+  - git
+sources:
+  - https://git.sr.ht:~the-commits/tjenamors-se-traefik
+secrets:
+  - e3464eed-b716-485b-873c-a785ef7bf68b
+environment:
+  repo_name: tjenamors-se-traefik
+  github_username: the-commits
+  github_repo: the-commits/tjenamors-se-traefik
+tasks:
+  - push: |
+      set +x
+      cd "${repo_name}"
+      github_token=$(cat ~/secrets/github_pat)
+      github_url=$(printf \
+        "https://%s:%s@github.com/%s" \
+        "${github_username}" \
+        "${github_token}" \
+        "${github_repo}")
+      git push --all "${github_url}" -f

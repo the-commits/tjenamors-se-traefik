@@ -14,6 +14,17 @@ tasks:
   - push: |
       set +x
       cd "${repo_name}"
+      cat > /tmp/notice.md <<'NOTICE'
+
+      > **Do not open issues or pull requests on GitHub** — the mirror there is
+      > [read-only](https://git.sr.ht/~the-commits/tjenamors-se-traefik).
+      > Please use the [sourcehut issue tracker](https://todo.sr.ht/~the-commits/tjenamors-se-traefik)
+      > and send patches to [~the-commits/tjenamors-se-traefik@lists.sr.ht](mailto:~the-commits/tjenamors-se-traefik@lists.sr.ht).
+
+      NOTICE
+      sed -i '3r /tmp/notice.md' README.md
+      git add README.md
+      git commit -m "chore: add mirror notice (GitHub-only)"
       github_token=$(cat ~/secrets/github_pat)
       github_url=$(printf \
         "https://%s:%s@github.com/%s" \

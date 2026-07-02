@@ -22,7 +22,7 @@ tasks:
       > and send patches to [~the-commits/tjenamors-se-traefik@lists.sr.ht](mailto:~the-commits/tjenamors-se-traefik@lists.sr.ht).
 
       NOTICE
-      sed -i 2r /tmp/notice.md' README.md
+      sed -i '2r /tmp/notice.md' README.md
       git add README.md
       git commit -m "chore: add mirror notice (GitHub-only)"
       github_token=$(cat ~/secrets/github_pat)

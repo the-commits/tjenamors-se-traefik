@@ -14,6 +14,9 @@ tasks:
   - push: |
       set +x
       cd "${repo_name}"
+      git config user.name "the-commits"
+      git config user.email "12031896+the-commits@users.noreply.github.com"
+
       cat > /tmp/notice.md <<'NOTICE'
 
       > **Do not open issues or pull requests on GitHub** — the mirror there is
@@ -25,10 +28,11 @@ tasks:
       sed -i '2r /tmp/notice.md' README.md
       git add README.md
       git commit -m "chore: add mirror notice (GitHub-only)"
+
       github_token=$(cat ~/secrets/github_pat)
       github_url=$(printf \
         "https://%s:%s@github.com/%s" \
         "${github_username}" \
         "${github_token}" \
         "${github_repo}")
-      git push --all "${github_url}" -f
+      git push -f "${github_url}" HEAD:main

@@ -17,12 +17,12 @@ tasks:
       git config user.name "the-commits"
       git config user.email "12031896+the-commits@users.noreply.github.com"
 
-      cat > /tmp/notice.md <<'NOTICE'
+      cat <<'NOTICE' | sed 's/^      //' > /tmp/notice.md
 
-> **Do not open issues or pull requests on GitHub** — the mirror there is
-> [read-only](https://git.sr.ht/~the-commits/tjenamors-se-traefik).
-> Please use the [sourcehut issue tracker](https://todo.sr.ht/~the-commits/tjenamors-se-traefik)
-> and send patches to [~the-commits/tjenamors-se-traefik@lists.sr.ht](mailto:~the-commits/tjenamors-se-traefik@lists.sr.ht).
+      > **Do not open issues or pull requests on GitHub** — the mirror there is
+      > [read-only](https://git.sr.ht/~the-commits/tjenamors-se-traefik).
+      > Please use the [sourcehut issue tracker](https://todo.sr.ht/~the-commits/tjenamors-se-traefik)
+      > and send patches to [~the-commits/tjenamors-se-traefik@lists.sr.ht](mailto:~the-commits/tjenamors-se-traefik@lists.sr.ht).
 
 NOTICE
       sed -i '2r /tmp/notice.md' README.md

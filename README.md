@@ -1,6 +1,12 @@
 [![sourcehut](https://img.shields.io/badge/sourcehut-~the--commits/tjenamors--se--traefik-2d6b9e?logo=sourcehut)](https://git.sr.ht/~the-commits/tjenamors-se-traefik)
 [![GitHub mirror](https://img.shields.io/badge/GitHub-the--commits/tjenamors--se--traefik-181717?logo=github)](https://github.com/the-commits/tjenamors-se-traefik)
 
+> **Do not open issues or pull requests on GitHub** — the mirror there is
+> [read-only](https://git.sr.ht/~the-commits/tjenamors-se-traefik).
+> Please use the [sourcehut issue tracker](https://todo.sr.ht/~the-commits/tjenamors-se-traefik)
+> and send patches to [~the-commits/tjenamors-se-traefik@lists.sr.ht](mailto:~the-commits/tjenamors-se-traefik@lists.sr.ht).
+
+
 # Traefik
 
 Ansible role for deploying [Traefik](https://traefik.io) reverse proxy via Docker.

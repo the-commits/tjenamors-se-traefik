@@ -39,6 +39,9 @@ traefik_cpus_reservation: "0.5"
 traefik_log_level: INFO
 traefik_access_log: false
 
+# Trusted proxy IPs (e.g. Cloudflare IPv4 ranges)
+traefik_cloudflare_ips: []
+
 # Systemd
 traefik_shutdown_timeout: 30
 traefik_service_enabled: true
